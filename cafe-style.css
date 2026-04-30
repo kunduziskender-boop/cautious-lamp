@@ -1,0 +1,699 @@
+/* ==================================================
+   cafe-style.css — Стили меню кафе
+   ==================================================
+
+   Структура:
+   1. CSS-переменные (цвета, отступы)
+   2. Базовые сбросы
+   3. Шапка (header)
+   4. Категории-фильтры (nav)
+   5. Сетка блюд (main)
+   6. Карточка блюда
+   7. Нижняя панель корзины
+   8. Модальное окно (шаг 2: подтверждение)
+   9. Экран успеха
+   10. Адаптив для планшета
+*/
+
+/* ──────────────────────────────────────────────────
+   1. CSS-ПЕРЕМЕННЫЕ
+   Меняй их, чтобы изменить всю цветовую схему сразу
+   ────────────────────────────────────────────────── */
+:root {
+  /* Цвета */
+  --bg:          #f7f4ef;   /* тёплый кремовый фон */
+  --surface:     #ffffff;   /* карточки и панели */
+  --border:      #e8e2d9;   /* цвет рамок */
+  --text-main:   #1c1917;   /* основной текст */
+  --text-muted:  #78716c;   /* второстепенный текст */
+  --accent:      #b45309;   /* акцентный цвет (кнопки, цены) */
+  --accent-soft: #fef3c7;   /* мягкий акцент (бейдж "Хит") */
+  --green:       #15803d;   /* кнопка "Добавить" */
+  --green-dark:  #166534;   /* кнопка "Добавить" при hover */
+  --green-bg:    #dcfce7;   /* фон кнопки +/- при наличии в корзине */
+  --danger:      #dc2626;   /* удаление */
+
+  /* Тёмные версии акцентов — для hover-состояний кнопок */
+  --accent-dark: #92400e;
+
+  /* Отступы */
+  --gap:    16px;
+  --radius: 14px;
+
+  /* Тень для панелей */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+/* ──────────────────────────────────────────────────
+   2. БАЗОВЫЕ СБРОСЫ
+   ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box; /* высота/ширина считается вместе с padding и border */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text-main);
+  /* Оставляем место снизу для фиксированной панели корзины */
+  padding-bottom: 90px;
+}
+
+/* Запрещаем прокрутку фона при открытом модальном окне */
+body.modal-open { overflow: hidden; }
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ──────────────────────────────────────────────────
+   3. ШАПКА
+   ────────────────────────────────────────────────── */
+.header {
+  position: sticky;  /* остаётся вверху при прокрутке */
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 14px var(--gap);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cafe-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.header-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Кнопка корзины в шапке (иконка + счётчик) */
+.cart-icon-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.cart-icon-btn:hover { background: var(--border); }
+
+/* Счётчик позиций в корзине (красный кружок) */
+.cart-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Скрыт по умолчанию, показывается через JS */
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* Класс .has-items добавляет видимость счётчику */
+.cart-count.has-items {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ──────────────────────────────────────────────────
+   4. КАТЕГОРИИ-ФИЛЬТРЫ
+   ────────────────────────────────────────────────── */
+.categories {
+  position: sticky; /* прилипает к верху при скролле, но не выходит из потока */
+  top: 73px; /* прилипает на высоте 73px от верха — ровно под шапкой (73px = её высота) */
+  z-index: 9;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  padding: 10px var(--gap);
+  overflow-x: auto;     /* горизонтальный скролл если не влезает */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* скрываем полосу прокрутки (Firefox) */
+}
+
+.categories::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+.category-btn {
+  flex-shrink: 0;       /* кнопки не сжимаются */
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.category-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Активная категория */
+.category-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ──────────────────────────────────────────────────
+   5. СЕТКА БЛЮД
+   ────────────────────────────────────────────────── */
+.dishes-grid {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--gap);
+  display: grid;
+  /* На мобильных — 1 колонка, на планшете — 2 колонки (см. адаптив) */
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+/* ──────────────────────────────────────────────────
+   6. КАРТОЧКА БЛЮДА
+   ────────────────────────────────────────────────── */
+.dish-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;     /* фото не вылезает за скруглённые углы */
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+
+.dish-card:hover { box-shadow: var(--shadow-md); }
+
+/* Контейнер фото */
+.dish-photo-wrap {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  background: var(--border); /* заглушка пока грузится фото */
+}
+
+.dish-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* фото заполняет блок без растяжки */
+  transition: transform 0.3s;
+}
+
+.dish-card:hover .dish-photo { transform: scale(1.04); }
+
+/* Бейдж (Хит / Новинка) */
+.dish-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Информация о блюде */
+.dish-info {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;  /* занимает всё доступное место, чтобы футер был внизу */
+}
+
+.dish-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.dish-weight {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dish-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex: 1;  /* растягивается, чтобы цена и кнопка были внизу */
+}
+
+/* Нижняя строка карточки: цена + кнопка */
+.dish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.dish-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Кнопка "Добавить" */
+.add-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.add-btn:hover    { background: var(--green-dark); }
+.add-btn:active   { transform: scale(0.96); }
+
+/* Блок управления количеством (−  2  +) */
+.dish-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green-bg);
+  color: var(--green);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.qty-btn:hover  { background: #bbf7d0; }
+.qty-btn:active { transform: scale(0.9); }
+
+/* Кнопка "минус" — красная */
+.minus-btn {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.minus-btn:hover { background: #fecaca; }
+
+.qty-count {
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ──────────────────────────────────────────────────
+   7. НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ
+   Скрыта по умолчанию, появляется когда есть товары
+   ────────────────────────────────────────────────── */
+.cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  padding: 12px var(--gap);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Трюк скрытия: translateY(100%) сдвигает панель вниз на 100% её высоты —
+     она уходит за нижний край экрана и становится невидимой.
+     JS добавляет класс .visible, который убирает этот сдвиг → панель выезжает. */
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+/* Класс .visible показывает панель (добавляется через JS) */
+.cart-bar.visible { transform: translateY(0); }
+
+.cart-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cart-items-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cart-total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Кнопка "Оформить заказ" */
+.order-btn {
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.order-btn:hover  { background: var(--accent-dark); }
+.order-btn:active { transform: scale(0.97); }
+
+/* ──────────────────────────────────────────────────
+   8. МОДАЛЬНОЕ ОКНО (ШАГ 2: ПОДТВЕРЖДЕНИЕ)
+   ────────────────────────────────────────────────── */
+
+/* Затемнённый фон */
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* shorthand: top:0; right:0; bottom:0; left:0 — растянуть на весь экран */
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end; /* окно прилипает к нижнему краю (как sheet в мобильных приложениях) */
+
+  /* Скрытое состояние: невидим и не кликабелен.
+     Прячем через opacity вместо display:none, чтобы работала transition-анимация. */
+  opacity: 0;
+  pointer-events: none; /* отключает все клики пока невидимо */
+  transition: opacity 0.25s;
+}
+
+/* Класс .visible показывает оверлей */
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-overlay.visible .modal {
+  transform: translateY(0);
+}
+
+/* Само окно */
+.modal {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0; /* скруглены только верхние углы */
+  max-height: 85vh;   /* не выше 85% высоты экрана */
+  overflow-y: auto;   /* если контент не влезает — прокрутка внутри окна */
+  display: flex;
+  flex-direction: column;
+
+  /* Начальная позиция: сдвинуто вниз на 40px (не видно, так как overlay скрыт).
+     Когда overlay получает .visible — этот сдвиг убирается через transition. */
+  transform: translateY(40px);
+  transition: transform 0.3s ease;
+}
+
+/* Шапка модального окна */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+
+.modal-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Кнопка закрыть */
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.modal-close:hover { background: var(--border); }
+
+/* Тело модалки: список блюд */
+.modal-body {
+  flex: 1;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Одна позиция в заказе */
+.modal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-item-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--border);
+}
+
+.modal-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-item-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.modal-item-qty {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.modal-item-price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Подвал модалки */
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+}
+
+.modal-total {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.modal-total strong {
+  font-size: 1.15rem;
+  color: var(--text-main);
+}
+
+/* Кнопка подтверждения заказа */
+.confirm-btn {
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.confirm-btn:hover  { background: var(--accent-dark); }
+.confirm-btn:active { transform: scale(0.97); }
+
+/* ──────────────────────────────────────────────────
+   9. ЭКРАН УСПЕХА (после подтверждения заказа)
+   ────────────────────────────────────────────────── */
+.success-screen {
+  position: fixed;
+  inset: 0;          /* растянуть на весь экран поверх всего */
+  z-index: 40;       /* выше модалки (z-index: 30) */
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Скрыт через opacity (а не display:none), чтобы работала плавная анимация */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.success-screen.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.success-content {
+  text-align: center;
+  max-width: 320px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Зелёная галочка */
+.success-check {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: var(--green);
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Анимация появления */
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.success-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.success-content p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Кнопка "Новый заказ" */
+.new-order-btn {
+  margin-top: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.new-order-btn:hover { background: var(--accent-dark); }
+
+/* ──────────────────────────────────────────────────
+   10. АДАПТИВ ДЛЯ ПЛАНШЕТА И ШИРЕ
+   ────────────────────────────────────────────────── */
+@media (min-width: 600px) {
+  /* На планшете — две колонки */
+  .dishes-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Модалка не растягивается на весь экран */
+  .modal-overlay {
+    align-items: center;
+  }
+
+  .modal {
+    border-radius: var(--radius);
+    margin: var(--gap);
+  }
+}
+
+@media (min-width: 800px) {
+  /* На десктопе — три колонки */
+  .dishes-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
