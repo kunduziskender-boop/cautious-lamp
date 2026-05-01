@@ -40,7 +40,7 @@ const DISHES = [
     price: 450,
     weight: '280 г',
     description: 'Хрустящие листья романо, куриное филе, пармезан, крутоны, фирменный соус',
-    photo: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFE4B5/8B4513?text=Caesar+Salad',
     badge: 'Хит',
   },
   {
@@ -50,7 +50,7 @@ const DISHES = [
     price: 380,
     weight: '260 г',
     description: 'Огурцы, помидоры, маслины, сыр фета, красный лук, оливковое масло',
-    photo: 'https://images.unsplash.com/photo-1540420773-cb5c8500e7b0?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/E8F5E9/2E7D32?text=Greek+Salad',
     badge: null,
   },
   {
@@ -60,7 +60,7 @@ const DISHES = [
     price: 490,
     weight: '250 г',
     description: 'Тунец, стручковая фасоль, помидоры черри, яйцо, горчичная заправка',
-    photo: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFF8DC/FF8C00?text=Tuna+Salad',
     badge: 'Новинка',
   },
 
@@ -72,7 +72,7 @@ const DISHES = [
     price: 290,
     weight: '350 мл',
     description: 'Свёкла, капуста, картофель, говядина, сметана. Подаётся с пампушкой',
-    photo: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/8B0000/FFB6C1?text=Borscht',
     badge: 'Хит',
   },
   {
@@ -82,7 +82,7 @@ const DISHES = [
     price: 520,
     weight: '300 г',
     description: 'Спагетти, бекон панчетта, яичный желток, пармезан, чёрный перец',
-    photo: 'https://images.unsplash.com/photo-1621996346285-e3b42f8f6800?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFEFD5/D2691E?text=Pasta+Carbonara',
     badge: null,
   },
   {
@@ -92,7 +92,7 @@ const DISHES = [
     price: 480,
     weight: '350 г',
     description: 'Говяжья котлета, листья салата, томат, маринованный огурец, фирменный соус',
-    photo: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/CD5C5C/8B4513?text=Burger',
     badge: 'Новинка',
   },
   {
@@ -102,7 +102,7 @@ const DISHES = [
     price: 750,
     weight: '200 г',
     description: 'Запечённый лосось с лимоном, каперсами и гарниром из сезонных овощей',
-    photo: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFE4B5/FF6347?text=Salmon+Steak',
     badge: null,
   },
 
@@ -114,7 +114,7 @@ const DISHES = [
     price: 120,
     weight: '30 мл',
     description: 'Крепкий итальянский эспрессо из зерна арабики',
-    photo: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/3E2723/D2B48C?text=Espresso',
     badge: null,
   },
   {
@@ -124,7 +124,7 @@ const DISHES = [
     price: 180,
     weight: '200 мл',
     description: 'Эспрессо с нежной молочной пенкой, латте-арт по запросу',
-    photo: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/5D4E37/F5DEB3?text=Cappuccino',
     badge: 'Хит',
   },
   {
@@ -134,7 +134,7 @@ const DISHES = [
     price: 220,
     weight: '400 мл',
     description: 'Свежевыжатый лимон, мята, газированная вода, сахарный сироп',
-    photo: 'https://images.unsplash.com/photo-1508253730197-b5f4d49cbc68?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFFACD/FFD700?text=Lemonade',
     badge: null,
   },
 
@@ -146,7 +146,7 @@ const DISHES = [
     price: 320,
     weight: '150 г',
     description: 'Савоярди, маскарпоне, эспрессо, ликёр амаретто, какао',
-    photo: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/8B6914/F0E68C?text=Tiramisu',
     badge: 'Хит',
   },
   {
@@ -156,7 +156,7 @@ const DISHES = [
     price: 290,
     weight: '140 г',
     description: 'Нежная сырная начинка, сливочный сыр Филадельфия, рассыпчатая основа',
-    photo: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/FFE4E1/CD853F?text=Cheesecake',
     badge: null,
   },
   {
@@ -166,7 +166,7 @@ const DISHES = [
     price: 250,
     weight: '180 г',
     description: 'Тёплый шоколадный брауни, ванильное мороженое, карамельный соус',
-    photo: 'https://images.unsplash.com/photo-1606313564200-e75d5e1c9c37?w=400&h=280&fit=crop&auto=format&q=80',
+    photo: 'https://dummyimage.com/400x280/663300/FFB6C1?text=Brownie',
     badge: 'Новинка',
   },
 ];
