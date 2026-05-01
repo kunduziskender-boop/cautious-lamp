@@ -1,0 +1,203 @@
+/*
+  Базовые стили портфолио: понятная структура, без препроцессоров.
+  Можно смело добавлять новые классы или менять переменные ниже.
+  V2: фокус с клавиатуры для навигации; стили ссылок в блоке контактов.
+ */
+
+:root {
+  /* Цветовая схема — поменяйте под свой бренд */
+  --bg: #faf9f8;
+  --surface: #ffffff;
+  --text: #252322;
+  --muted: #5c5856;
+  --accent: #2c2a29;
+  --border: #e6e3e0;
+  --max-width: 960px;
+  /* Helvetica на macOS/iOS; на Windows её часто нет — тогда Arial как близкий заменитель */
+  --font: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html {
+  /* Якорные ссылки из меню: плавная прокрутка */
+  scroll-behavior: smooth;
+  /* Липкая шапка не перекрывает заголовок выбранной секции */
+  scroll-padding-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* Шапка с навигацией по якорям */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.site-header__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.site-title {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.site-tagline {
+  margin: 0;
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+.nav a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+/* Видимый фокус при Tab по меню (не заменяет смысл :hover для мыши) */
+.nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Секции контента */
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+section {
+  margin-bottom: 2.75rem;
+}
+
+section h2 {
+  font-size: 1.35rem;
+  margin: 0 0 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Таблица услуг: на узком экране скролл по горизонтали */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+th,
+td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  background: var(--bg);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Галерея: сетка, легко добавить ещё фото в site-data.js */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.gallery__figure {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gallery__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.gallery__figure figcaption {
+  padding: 0.5rem 0.65rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Контакты */
+.contacts__item {
+  margin-bottom: 0.5rem;
+}
+
+/* Телефон и email после V2 стали ссылками — цвет как у остальных акцентов */
+.contacts__item a {
+  color: var(--accent);
+}
+
+.contacts__item a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Подвал */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}

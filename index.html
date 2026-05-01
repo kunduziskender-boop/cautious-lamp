@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- Учебный сайт-портфолио, статическая вёрстка. Версия: V2 (см. README). -->
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Краткий текст для поисковиков и превью; полный текст — в site-data.js -->
+    <meta
+      name="description"
+      content="Портфолио фотографа: работы, услуги и стоимость, контакты. Учебный проект без сервера."
+    />
+    <title>Портфолио фотографа</title>
+    <!-- Стили в отдельном файле — проще править и расширять -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Шапка: название и быстрые ссылки по странице (якоря) -->
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div>
+          <h1 class="site-title">Портфолио фотографа</h1>
+          <p class="site-tagline"></p>
+        </div>
+        <nav class="nav" aria-label="Основная навигация">
+          <a href="#about">О фотографе</a>
+          <a href="#gallery">Работы</a>
+          <a href="#services">Услуги</a>
+          <a href="#contacts">Контакты</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">О фотографе</h2>
+        <!-- Текст подставляется из site-data.js -->
+        <div id="about-text"></div>
+      </section>
+
+      <section id="gallery" aria-labelledby="gallery-heading">
+        <h2 id="gallery-heading">Фотографии</h2>
+        <div id="gallery" class="gallery"></div>
+      </section>
+
+      <section id="services" aria-labelledby="services-heading">
+        <h2 id="services-heading">Услуги и стоимость</h2>
+        <div class="table-wrap">
+          <table id="services-table">
+            <thead>
+              <tr>
+                <th>Услуга</th>
+                <th>Что входит</th>
+                <th>Цена</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Строки таблицы создаёт app.js из site-data.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="contacts" aria-labelledby="contacts-heading">
+        <h2 id="contacts-heading">Контакты</h2>
+        <div id="contacts-list"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Сайт-визитка: данные правятся в файле <code>site-data.js</code>.</p>
+    </footer>
+
+    <!-- Порядок важен: данные → генерация HTML (render.js) → привязка к DOM (app.js) -->
+    <script src="site-data.js"></script>
+    <script src="render.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
