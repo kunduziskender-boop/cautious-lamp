@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <!-- Адаптив для мобильных устройств -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Меню — Кафе «Уют»</title>
+
+  <!-- Стили подключаем здесь, скрипты — внизу страницы -->
+  <link rel="stylesheet" href="cafe-style.css">
+</head>
+<body>
+
+  <!--
+    =====================================================
+    СТРУКТУРА СТРАНИЦЫ (все 5 блоков):
+      1. Шапка (header)            — всегда видна вверху
+      2. Категории-фильтры (nav)   — под шапкой, прилипает
+      3. Сетка блюд (main)         — карточки с фото
+      4. Нижняя панель корзины     — появляется при добавлении
+      5. Модалка + экран успеха    — шаг 2: подтверждение
+    =====================================================
+  -->
+
+  <!-- ═══════════════════════════════════════════════
+       1. ШАПКА
+       ═══════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+
+      <div class="header-title">
+        <h1 class="cafe-name">Кафе «Уют»</h1>
+        <!--
+          Номер стола подставляется из URL-параметра ?table=5
+          cafe-app.js читает его через URLSearchParams
+        -->
+        <p class="header-sub">Стол № <span id="table-num">—</span></p>
+      </div>
+
+      <!-- Кнопка с иконкой корзины в правом углу шапки -->
+      <button class="cart-icon-btn" id="cart-icon-btn" aria-label="Посмотреть корзину">
+        <!-- SVG-иконка корзины (встроенная, без внешних файлов) -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <!-- Счётчик позиций (показывается JS-классом .has-items) -->
+        <span class="cart-count" id="cart-count" aria-label="Количество блюд в корзине">0</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════
+       2. КАТЕГОРИИ-ФИЛЬТРЫ
+       Кнопки генерируются в cafe-app.js → renderCategories()
+       ═══════════════════════════════════════════════ -->
+  <nav class="categories" id="categories" aria-label="Фильтр по категориям блюд">
+    <!-- Здесь будут кнопки: Все блюда / Салаты / Горячее / ... -->
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       3. СЕТКА БЛЮД
+       Карточки генерируются в cafe-app.js → renderDishes()
+       ═══════════════════════════════════════════════ -->
+  <main class="dishes-grid" id="dishes-grid" aria-label="Список блюд">
+    <!-- Здесь появятся карточки блюд с фото, описанием и кнопками -->
+  </main>
+
+  <!-- ═══════════════════════════════════════════════
+       4. НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ (ШАГ 1)
+       Скрыта по умолчанию (CSS: transform: translateY(100%))
+       Появляется при добавлении первого блюда
+       ═══════════════════════════════════════════════ -->
+  <div class="cart-bar" id="cart-bar" role="region" aria-label="Корзина">
+    <div class="cart-bar-info">
+      <!-- Эти значения обновляет updateCartBar() в cafe-app.js -->
+      <span class="cart-items-count" id="cart-items-count">0 блюд</span>
+      <span class="cart-total" id="cart-total">0 ₽</span>
+    </div>
+    <button class="order-btn" id="order-btn">
+      Оформить заказ
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5А. МОДАЛЬНОЕ ОКНО (ШАГ 2: ПОДТВЕРЖДЕНИЕ ЗАКАЗА)
+       Оверлей + само окно внутри него
+       ═══════════════════════════════════════════════ -->
+  <!-- Затемнённый фон модалки. role/aria — на вложенном .modal, не здесь -->
+  <div class="modal-overlay" id="modal-overlay">
+
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <!-- Шапка окна -->
+      <div class="modal-header">
+        <h2 id="modal-title">Ваш заказ</h2>
+        <button class="modal-close" id="modal-close" aria-label="Закрыть окно">✕</button>
+      </div>
+
+      <!-- Список позиций — генерируется в openOrderModal() -->
+      <div class="modal-body" id="modal-body">
+        <!-- Блюда из корзины появятся здесь -->
+      </div>
+
+      <!-- Подвал окна: итоговая сумма + кнопка -->
+      <div class="modal-footer">
+        <div class="modal-total">
+          Итого: <strong id="modal-total">0 ₽</strong>
+        </div>
+        <button class="confirm-btn" id="confirm-btn">
+          Подтвердить заказ
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5Б. ЭКРАН УСПЕХА
+       Показывается поверх всего после подтверждения заказа
+       ═══════════════════════════════════════════════ -->
+  <div class="success-screen" id="success-screen" role="status" aria-live="polite">
+    <div class="success-content">
+      <div class="success-check" aria-hidden="true">✓</div>
+      <h2>Заказ принят!</h2>
+      <p>
+        Ваш заказ передан на кухню.<br>
+        Ожидайте — мы принесём блюда к вашему столу.
+      </p>
+      <button class="new-order-btn" id="new-order-btn">
+        Новый заказ
+      </button>
+    </div>
+  </div>
+
+  <!--
+    Скрипты подключаем в конце <body>, чтобы HTML уже загрузился.
+    Порядок важен: сначала данные, потом логика!
+  -->
+  <script src="cafe-data.js"></script>
+  <script src="cafe-app.js"></script>
+
+</body>
+</html>
