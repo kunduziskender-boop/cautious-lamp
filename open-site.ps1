@@ -4,6 +4,7 @@ $ErrorActionPreference = 'Stop'
 
 Set-Location -LiteralPath $PSScriptRoot
 $Port = 9333
+$indexFsPath = Join-Path $PSScriptRoot 'index.html'
 
 function Test-PortOpen([int]$P) {
     try {
@@ -41,8 +42,11 @@ function Resolve-PythonExec {
 $pyHost = Resolve-PythonExec
 if (-not $pyHost) {
     Write-Host ''
-    Write-Host 'py.exe / python.exe not found in PATH.' -ForegroundColor Red
-    Write-Host 'Install Python and check ''Add Python to PATH'', or open index.html with double-click.'
+    Write-Host 'py.exe / python.exe не найден в PATH.' -ForegroundColor Red
+    Write-Host 'Установите Python с опцией «Add to PATH» или просто откройте страницу с диска (ниже).' -ForegroundColor Yellow
+    if (Test-Path -LiteralPath $indexFsPath) {
+        Invoke-Item -LiteralPath $indexFsPath
+    }
     pause
     exit 1
 }
@@ -62,6 +66,20 @@ $dir = $PSScriptRoot.TrimEnd('\').Replace('"', '""')
 $exe = $pyHost.Path.Trim().Replace('"', '""')
 
 # Single-quoted here-string passes && and & to CMD only.
+$url = ('http://127.0.0.1:{0}/' -f $Port)
+
+function Open-InDefaultBrowser([string]$TargetUrl) {
+    # Start-Process $url часто даёт другой результат, чем «start» из cmd — там надёжнее ассоциация браузера в Windows.
+    Start-Process -FilePath 'cmd.exe' -ArgumentList @('/c', 'start', '', $TargetUrl) -WorkingDirectory $PSScriptRoot
+}
+
+if (Test-PortOpen -P $Port) {
+    Write-Host ''
+    Write-Host ('Порт ' + $Port + ' уже занят — сервер считается запущенным. Открываю браузер.') -ForegroundColor Cyan
+    Open-InDefaultBrowser $url
+    exit 0
+}
+
 $t = @'
 cd /d "__DIR__" && "__EXE__" __ARGS__ || (echo. & echo ERR & pause)
 '@
@@ -80,8 +98,12 @@ for ($i = 0; $i -lt 80; $i++) {
 
 if (-not $listening) {
     Write-Host ''
-    Write-Host ('Port ' + $Port + ' not ready yet. Read the CMD window with the server.') -ForegroundColor Yellow
+    Write-Host ('Порт ' + $Port + ' пока не отвечает. Проверьте окно CMD с Python.') -ForegroundColor Yellow
+    Write-Host ('Открываю страницу с диска: ' + $indexFsPath) -ForegroundColor Yellow
+    if (Test-Path -LiteralPath $indexFsPath) {
+        Invoke-Item -LiteralPath $indexFsPath
+    }
+    exit 0
 }
 
-$url = ('http://127.0.0.1:{0}/' -f $Port)
-Start-Process $url
+Open-InDefaultBrowser $url

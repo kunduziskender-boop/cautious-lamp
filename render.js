@@ -4,6 +4,18 @@
  * V2: телефон и email превращаются в ссылки tel:/mailto: (как раньше в app.js).
  */
 
+/** Значение по умолчанию для заголовка вкладки (должно совпадать с прежним поведением) */
+const DEFAULT_DOCUMENT_TITLE = 'Портфолио';
+
+/** Порядок и подписи полей контактов — formatContactDisplay опирается на точные русские строки «Телефон» и «Email» */
+const CONTACT_DISPLAY_PAIRS = [
+  ['Телефон', 'phone'],
+  ['Email', 'email'],
+  ['Telegram', 'telegram'],
+  ['Instagram', 'instagram'],
+  ['Город', 'city'],
+];
+
 // Безопасный вывод пользовательских строк как текст внутри HTML (логика совпадает с прежним app.js)
 function escapeHtml(text) {
   const div = document.createElement('div');
@@ -21,7 +33,7 @@ function escapeAttrValue(value) {
   return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-// Одна строка контакта: для телефона и почты — ссылки
+// Одна строка контакта: для телефона и почты — ссылки (критично не менять условие по подписи label)
 function formatContactDisplay(label, value) {
   const text = escapeHtml(value);
   if (label === 'Телефон') {
@@ -41,7 +53,7 @@ function getSiteHeaderTexts(siteData) {
   return {
     title: siteData.title || '',
     tagline: siteData.tagline || '',
-    documentTitle: siteData.title || 'Портфолио',
+    documentTitle: siteData.title || DEFAULT_DOCUMENT_TITLE,
   };
 }
 
@@ -55,23 +67,16 @@ function buildAboutHtml(paragraphs) {
 function buildContactsHtml(contacts) {
   if (!contacts) return '';
 
-  const pairs = [
-    ['Телефон', contacts.phone],
-    ['Email', contacts.email],
-    ['Telegram', contacts.telegram],
-    ['Instagram', contacts.instagram],
-    ['Город', contacts.city],
-  ];
-
   const rows = [];
-  pairs.forEach(([label, value]) => {
+
+  CONTACT_DISPLAY_PAIRS.forEach(([label, key]) => {
+    const value = contacts[key];
     if (value && String(value).trim() !== '') {
       const displayed = formatContactDisplay(label, value);
-      rows.push(
-        `<div class="contacts__item"><strong>${escapeHtml(label)}:</strong> ${displayed}</div>`
-      );
+      rows.push(`<div class="contacts__item"><strong>${escapeHtml(label)}:</strong> ${displayed}</div>`);
     }
   });
+
   return rows.join('');
 }
 
@@ -90,7 +95,7 @@ function buildServicesTableBodyHtml(services) {
     .join('');
 }
 
-/** HTML сетки галереи */
+/** HTML сетки галереи (escapeHtml для URL/ alt — сохранён прежний уровень «защиты» от строк в атрибутах) */
 function buildGalleryHtml(gallery) {
   if (!gallery || !gallery.length) return '';
   return gallery

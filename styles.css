@@ -221,6 +221,11 @@ tr:last-child td {
 }
 
 /* Контакты */
+.contacts-list {
+  margin: 0;
+  font-style: normal;
+}
+
 .contacts__item {
   margin-bottom: 0.5rem;
 }
@@ -243,11 +248,34 @@ tr:last-child td {
   max-width: 42rem;
 }
 
+.booking-form__fieldset {
+  border: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.booking-form__legend {
+  padding: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-bottom: 0.65rem;
+  color: var(--text);
+}
+
 .booking-form__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   gap: 1rem 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+.booking-form__grid--datetime {
+  margin-bottom: 0;
+}
+
+.booking-form__fieldset:last-of-type .booking-form__grid {
+  margin-bottom: 0;
 }
 
 .booking-form .field {

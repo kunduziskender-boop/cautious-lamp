@@ -3,6 +3,38 @@
  * Данные читаются из SITE_DATA (site-data.js); разметка строится в render.js.
  */
 
+// --- Идемпотентные тексты блока записи (не менять формулировки без нужды UX) ---
+const BOOKING_MESSAGES = {
+  recipientEmailInvalid:
+    'В site-data.js в поле contacts.email укажите реальный адрес почты фотографа — без скобок-заглушек.',
+  clientContactMissing: 'Укажите телефон или свой email для обратной связи.',
+  requiredMissing: 'Заполните обязательные поля.',
+  afterMailto:
+    'Если почта не открылась, скопируйте текст из письма вручную или напишите на указанную в блоке контактов почту.',
+};
+
+const BOOKING_MAIL_SUBJECT_TEXT = 'Запись на съёмку';
+
+/** Сброс сообщения формы записи перед новой попыткой */
+function resetBookingFeedback(feedbackEl) {
+  if (!feedbackEl) return;
+  feedbackEl.textContent = '';
+  feedbackEl.classList.remove('booking-form__feedback--warn');
+}
+
+/** Сообщение об ошибке: текст + модификатор предупреждения */
+function setBookingFeedbackWarn(feedbackEl, message) {
+  if (!feedbackEl) return;
+  feedbackEl.textContent = message;
+  feedbackEl.classList.add('booking-form__feedback--warn');
+}
+
+/** Подсказка после перехода mailto (без класса ошибки у фона — как в прежнем коде) */
+function setBookingFeedbackSuccessHint(feedbackEl) {
+  if (!feedbackEl) return;
+  feedbackEl.textContent = BOOKING_MESSAGES.afterMailto;
+}
+
 function fillAbout() {
   const root = document.getElementById('about-text');
   if (!root || !SITE_DATA.aboutParagraphs) return;
@@ -43,6 +75,30 @@ function setBookingDateMin() {
   input.min = `${y}-${m}-${day}`;
 }
 
+/**
+ * Строки тела письма — порядок и подписи полей сохранены как были (важно для mailto-длины и ожиданий клиента).
+ */
+function buildBookingBodyLines(bookingPayload) {
+  const { name, phone, emailClient, dateHuman, time, comment } = bookingPayload;
+
+  let bodyLines = [BOOKING_MAIL_SUBJECT_TEXT, '', `Имя: ${name}`];
+  if (phone) bodyLines.push(`Телефон: ${phone}`);
+  if (emailClient) bodyLines.push(`Email клиента: ${emailClient}`);
+  bodyLines.push(`Желаемая дата: ${dateHuman}`, `Желаемое время: ${time}`);
+  if (comment) bodyLines.push('', `Комментарий:`, comment);
+
+  return bodyLines;
+}
+
+/**
+ * Собираем mailto точно как раньше: encodeURIComponent(subject/body/recipient — без изменения алгоритма).
+ */
+function buildBookingMailtoUrl(recipientTrimmed, plainBodyLines) {
+  const subject = encodeURIComponent(BOOKING_MAIL_SUBJECT_TEXT);
+  const body = encodeURIComponent(plainBodyLines.join('\n'));
+  return `mailto:${encodeURIComponent(recipientTrimmed)}?subject=${subject}&body=${body}`;
+}
+
 function initBookingForm() {
   const form = document.getElementById('booking-form');
   const feedback = document.getElementById('booking-feedback');
@@ -71,34 +127,21 @@ function initBookingForm() {
 
     const to = SITE_DATA.contacts.email.trim();
 
-    if (feedback) {
-      feedback.textContent = '';
-      feedback.classList.remove('booking-form__feedback--warn');
-    }
+    resetBookingFeedback(feedback);
 
     if (!isProbablyValidRecipientEmail(to)) {
-      if (feedback) {
-        feedback.textContent =
-          'В site-data.js в поле contacts.email укажите реальный адрес почты фотографа — без скобок-заглушек.';
-        feedback.classList.add('booking-form__feedback--warn');
-      }
+      setBookingFeedbackWarn(feedback, BOOKING_MESSAGES.recipientEmailInvalid);
       return;
     }
 
     if (!phone && !emailClient) {
-      if (feedback) {
-        feedback.textContent = 'Укажите телефон или свой email для обратной связи.';
-        feedback.classList.add('booking-form__feedback--warn');
-      }
+      setBookingFeedbackWarn(feedback, BOOKING_MESSAGES.clientContactMissing);
       phoneEl?.focus();
       return;
     }
 
     if (!name || !date || !time) {
-      if (feedback) {
-        feedback.textContent = 'Заполните обязательные поля.';
-        feedback.classList.add('booking-form__feedback--warn');
-      }
+      setBookingFeedbackWarn(feedback, BOOKING_MESSAGES.requiredMissing);
       return;
     }
 
@@ -106,22 +149,18 @@ function initBookingForm() {
       ? dateEl.valueAsDate.toLocaleDateString('ru-RU')
       : date;
 
-    let bodyLines = [`Запись на съёмку`, '', `Имя: ${name}`];
-    if (phone) bodyLines.push(`Телефон: ${phone}`);
-    if (emailClient) bodyLines.push(`Email клиента: ${emailClient}`);
-    bodyLines.push(`Желаемая дата: ${dateHuman}`, `Желаемое время: ${time}`);
-    if (comment) bodyLines.push('', `Комментарий:`, comment);
+    const bodyLines = buildBookingBodyLines({
+      name,
+      phone,
+      emailClient,
+      dateHuman,
+      time,
+      comment,
+    });
 
-    const subject = encodeURIComponent('Запись на съёмку');
-    const body = encodeURIComponent(bodyLines.join('\n'));
-    const mailto = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+    window.location.href = buildBookingMailtoUrl(to, bodyLines);
 
-    window.location.href = mailto;
-
-    if (feedback) {
-      feedback.textContent =
-        'Если почта не открылась, скопируйте текст из письма вручную или напишите на указанную в блоке контактов почту.';
-    }
+    setBookingFeedbackSuccessHint(feedback);
   });
 }
 

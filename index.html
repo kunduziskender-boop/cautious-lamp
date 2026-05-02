@@ -66,50 +66,65 @@
 
       <section id="contacts" aria-labelledby="contacts-heading">
         <h2 id="contacts-heading">Контакты</h2>
-        <div id="contacts-list"></div>
+        <address id="contacts-list" class="contacts-list"></address>
       </section>
 
       <section id="booking" aria-labelledby="booking-heading">
         <h2 id="booking-heading">Записаться на съёмку</h2>
-        <p class="booking__hint">
+        <p id="booking-intro" class="booking__hint">
           Укажите желаемую дату и время и свои контакты — откроется письмо на почту фотографа; отправьте его
           или скопируйте текст из письма, если программа почты не открывается автоматически.
         </p>
-        <form id="booking-form" class="booking-form" autocomplete="on" novalidate>
-          <div class="booking-form__grid">
-            <div class="field">
-              <label for="booking-name">Имя <span class="field__req" aria-hidden="true">*</span></label>
-              <input id="booking-name" name="name" type="text" required maxlength="120" placeholder="Как к вам обращаться" />
+        <form
+          id="booking-form"
+          class="booking-form"
+          autocomplete="on"
+          novalidate
+          aria-describedby="booking-intro booking-client-contact-hint"
+        >
+          <fieldset class="booking-form__fieldset">
+            <legend class="booking-form__legend">Вы и связь с вами</legend>
+            <div class="booking-form__grid">
+              <div class="field">
+                <label for="booking-name">Имя <span class="field__req" aria-hidden="true">*</span></label>
+                <input id="booking-name" name="name" type="text" required maxlength="120" placeholder="Как к вам обращаться" autocomplete="name" />
+              </div>
+              <div class="field">
+                <label for="booking-phone">Телефон</label>
+                <input id="booking-phone" name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+7 …" aria-describedby="booking-client-contact-hint" />
+              </div>
+              <div class="field">
+                <label for="booking-email-client">Ваш email</label>
+                <input
+                  id="booking-email-client"
+                  name="emailClient"
+                  type="email"
+                  maxlength="120"
+                  autocomplete="email"
+                  placeholder="для связи по почте"
+                  aria-describedby="booking-client-contact-hint"
+                />
+              </div>
             </div>
-            <div class="field">
-              <label for="booking-phone">Телефон</label>
-              <input id="booking-phone" name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+7 …" />
+          </fieldset>
+          <fieldset class="booking-form__fieldset">
+            <legend class="booking-form__legend">Дата и время</legend>
+            <div class="booking-form__grid booking-form__grid--datetime">
+              <div class="field">
+                <label for="booking-date">Дата съёмки <span class="field__req" aria-hidden="true">*</span></label>
+                <input id="booking-date" name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label for="booking-time">Предпочтительное время <span class="field__req" aria-hidden="true">*</span></label>
+                <input id="booking-time" name="time" type="time" required step="900" />
+              </div>
             </div>
-            <div class="field">
-              <label for="booking-email-client">Ваш email</label>
-              <input
-                id="booking-email-client"
-                name="emailClient"
-                type="email"
-                maxlength="120"
-                autocomplete="email"
-                placeholder="для связи по почте"
-              />
-            </div>
-            <div class="field">
-              <label for="booking-date">Дата съёмки <span class="field__req" aria-hidden="true">*</span></label>
-              <input id="booking-date" name="date" type="date" required />
-            </div>
-            <div class="field">
-              <label for="booking-time">Предпочтительное время <span class="field__req" aria-hidden="true">*</span></label>
-              <input id="booking-time" name="time" type="time" required step="900" />
-            </div>
-          </div>
+          </fieldset>
           <div class="field">
             <label for="booking-comment">Комментарий</label>
             <textarea id="booking-comment" name="comment" rows="3" maxlength="800" placeholder="Тип съёмки, пожелания"></textarea>
           </div>
-          <p id="booking-client-contact-hint" class="booking-form__note" role="note">
+          <p id="booking-client-contact-hint" class="booking-form__note">
             Укажите телефон или email — хотя бы один способ связи с вами.
           </p>
           <button type="submit" class="btn btn--primary">Сформировать письмо с заявкой</button>
