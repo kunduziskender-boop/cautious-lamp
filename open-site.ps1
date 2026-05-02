@@ -42,8 +42,8 @@ function Resolve-PythonExec {
 $pyHost = Resolve-PythonExec
 if (-not $pyHost) {
     Write-Host ''
-    Write-Host 'py.exe / python.exe не найден в PATH.' -ForegroundColor Red
-    Write-Host 'Установите Python с опцией «Add to PATH» или просто откройте страницу с диска (ниже).' -ForegroundColor Yellow
+    Write-Host 'py.exe / python.exe not found in PATH.' -ForegroundColor Red
+    Write-Host 'Install Python with "Add Python to PATH", or open index.html from this folder.' -ForegroundColor Yellow
     if (Test-Path -LiteralPath $indexFsPath) {
         Invoke-Item -LiteralPath $indexFsPath
     }
@@ -69,13 +69,16 @@ $exe = $pyHost.Path.Trim().Replace('"', '""')
 $url = ('http://127.0.0.1:{0}/' -f $Port)
 
 function Open-InDefaultBrowser([string]$TargetUrl) {
-    # Start-Process $url часто даёт другой результат, чем «start» из cmd — там надёжнее ассоциация браузера в Windows.
-    Start-Process -FilePath 'cmd.exe' -ArgumentList @('/c', 'start', '', $TargetUrl) -WorkingDirectory $PSScriptRoot
+    if ([string]::IsNullOrWhiteSpace($TargetUrl)) {
+        return
+    }
+    # explorer.exe opens http(s) URLs with the default browser; avoids empty-arg issues with cmd "start".
+    Start-Process -FilePath 'explorer.exe' -ArgumentList $TargetUrl
 }
 
 if (Test-PortOpen -P $Port) {
     Write-Host ''
-    Write-Host ('Порт ' + $Port + ' уже занят — сервер считается запущенным. Открываю браузер.') -ForegroundColor Cyan
+    Write-Host "Port $Port is already in use; opening the site in your browser." -ForegroundColor Cyan
     Open-InDefaultBrowser $url
     exit 0
 }
@@ -98,8 +101,8 @@ for ($i = 0; $i -lt 80; $i++) {
 
 if (-not $listening) {
     Write-Host ''
-    Write-Host ('Порт ' + $Port + ' пока не отвечает. Проверьте окно CMD с Python.') -ForegroundColor Yellow
-    Write-Host ('Открываю страницу с диска: ' + $indexFsPath) -ForegroundColor Yellow
+    Write-Host "Port $Port is not responding yet. Check the CMD window running Python." -ForegroundColor Yellow
+    Write-Host "Opening local file instead: $indexFsPath" -ForegroundColor Yellow
     if (Test-Path -LiteralPath $indexFsPath) {
         Invoke-Item -LiteralPath $indexFsPath
     }

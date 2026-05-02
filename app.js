@@ -109,6 +109,10 @@ function initBookingForm() {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
+    if (!window.confirm('Вы уверены?')) {
+      return;
+    }
+
     const nameEl = document.getElementById('booking-name');
     const phoneEl = document.getElementById('booking-phone');
     const emailClientEl = document.getElementById('booking-email-client');
