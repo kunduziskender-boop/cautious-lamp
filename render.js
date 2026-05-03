@@ -80,6 +80,31 @@ function buildContactsHtml(contacts) {
   return rows.join('');
 }
 
+/** HTML блока «Способы оплаты» */
+function buildPaymentMethodsHtml(methods) {
+  if (!methods || !methods.length) return '';
+  return methods
+    .map((item) => {
+      const title = escapeHtml(item.title || '');
+      const detailRaw = item.detail && String(item.detail).trim();
+      const detail = detailRaw
+        ? `<p class="payment-method__detail">${escapeHtml(detailRaw)}</p>`
+        : '';
+      const urlRaw = item.url && String(item.url).trim();
+      const link = urlRaw
+        ? `<p class="payment-method__link-wrap"><a class="payment-method__link" href="${escapeAttrValue(safeHref(urlRaw))}" rel="noopener noreferrer">${escapeHtml(
+            item.linkLabel && String(item.linkLabel).trim() ? String(item.linkLabel).trim() : 'Перейти'
+          )}</a></p>`
+        : '';
+      return `<article class="payment-method">
+        <h3 class="payment-method__title">${title}</h3>
+        ${detail}
+        ${link}
+      </article>`;
+    })
+    .join('');
+}
+
 /** HTML только для <tbody> таблицы услуг */
 function buildServicesTableBodyHtml(services) {
   if (!services || !services.length) return '';
@@ -95,18 +120,47 @@ function buildServicesTableBodyHtml(services) {
     .join('');
 }
 
-/** HTML сетки галереи (escapeHtml для URL/ alt — сохранён прежний уровень «защиты» от строк в атрибутах) */
+/** HTML слайдшоу галереи (escapeHtml для URL/ alt — сохранён прежний уровень «защиты» от строк в атрибутах) */
 function buildGalleryHtml(gallery) {
   if (!gallery || !gallery.length) return '';
-  return gallery
-    .map((item) => {
+  const total = gallery.length;
+  const slides = gallery
+    .map((item, index) => {
       const cap = item.caption
-        ? `<figcaption>${escapeHtml(item.caption)}</figcaption>`
+        ? `<figcaption class="gallery-slideshow__figcaption">${escapeHtml(item.caption)}</figcaption>`
         : '';
-      return `<figure class="gallery__figure">
-          <img class="gallery__img" src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt || '')}" loading="lazy" width="640" height="853">
+      const loading = index === 0 ? 'eager' : 'lazy';
+      return `<figure class="gallery-slideshow__slide${index === 0 ? ' is-active' : ''}" data-slide-index="${index}"${index === 0 ? '' : ' aria-hidden="true"'}>
+          <div class="gallery-slideshow__img-wrap">
+            <img class="gallery-slideshow__img" src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt || '')}" loading="${loading}" width="640" height="853" decoding="async">
+          </div>
           ${cap}
         </figure>`;
     })
     .join('');
+
+  const dots = gallery
+    .map(
+      (_, index) =>
+        `<button type="button" class="gallery-slideshow__dot${index === 0 ? ' is-active' : ''}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-label="Показать фото ${index + 1} из ${total}"></button>`
+    )
+    .join('');
+
+  return `<div class="gallery gallery--slideshow">
+      <div class="gallery-slideshow__frame">
+        <button type="button" class="gallery-slideshow__btn gallery-slideshow__btn--prev" aria-label="Предыдущее фото">‹</button>
+        <div
+          class="gallery-slideshow__viewport"
+          tabindex="0"
+          role="region"
+          aria-roledescription="карусель"
+          aria-label="Галерея работ"
+        >
+          ${slides}
+        </div>
+        <button type="button" class="gallery-slideshow__btn gallery-slideshow__btn--next" aria-label="Следующее фото">›</button>
+      </div>
+      <p class="gallery-slideshow__counter" aria-live="polite">1 / ${total}</p>
+      <div class="gallery-slideshow__dots" role="tablist" aria-label="Выбор слайда">${dots}</div>
+    </div>`;
 }

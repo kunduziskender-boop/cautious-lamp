@@ -53,10 +53,111 @@ function fillServicesTable() {
   tbody.innerHTML = buildServicesTableBodyHtml(SITE_DATA.services);
 }
 
+function fillPaymentMethods() {
+  const root = document.getElementById('payment-methods');
+  if (!root || !SITE_DATA.paymentMethods) return;
+  root.innerHTML = buildPaymentMethodsHtml(SITE_DATA.paymentMethods);
+}
+
 function fillGallery() {
-  const root = document.getElementById('gallery');
+  const root = document.getElementById('gallery-mount');
   if (!root || !SITE_DATA.gallery) return;
   root.innerHTML = buildGalleryHtml(SITE_DATA.gallery);
+}
+
+/** Карусель галереи: прокрутка, кнопки, точки, клавиши ← → */
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function initGallerySlideshow() {
+  const root = document.querySelector('.gallery--slideshow');
+  if (!root) return;
+
+  const viewport = root.querySelector('.gallery-slideshow__viewport');
+  const btnPrev = root.querySelector('.gallery-slideshow__btn--prev');
+  const btnNext = root.querySelector('.gallery-slideshow__btn--next');
+  const counter = root.querySelector('.gallery-slideshow__counter');
+  const dots = root.querySelectorAll('.gallery-slideshow__dot');
+  const slides = root.querySelectorAll('.gallery-slideshow__slide');
+
+  if (!viewport || !slides.length) return;
+
+  const getSlideWidth = () => viewport.clientWidth || 1;
+
+  const scrollOpts = (left) => ({
+    left,
+    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+  });
+
+  function currentIndex() {
+    const w = getSlideWidth();
+    return Math.min(slides.length - 1, Math.max(0, Math.round(viewport.scrollLeft / w)));
+  }
+
+  function updateUi() {
+    const i = currentIndex();
+    if (counter) {
+      counter.textContent = `${i + 1} / ${slides.length}`;
+    }
+    slides.forEach((slide, idx) => {
+      const on = idx === i;
+      slide.classList.toggle('is-active', on);
+      slide.setAttribute('aria-hidden', on ? 'false' : 'true');
+    });
+    dots.forEach((dot, idx) => {
+      const on = idx === i;
+      dot.classList.toggle('is-active', on);
+      dot.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  let scrollRaf = 0;
+  function onScroll() {
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = 0;
+      updateUi();
+    });
+  }
+
+  function goBy(delta) {
+    const w = getSlideWidth();
+    const i = currentIndex();
+    let next = i + delta;
+    if (next < 0) next = slides.length - 1;
+    if (next >= slides.length) next = 0;
+    viewport.scrollTo(scrollOpts(next * w));
+  }
+
+  btnPrev?.addEventListener('click', () => goBy(-1));
+  btnNext?.addEventListener('click', () => goBy(1));
+
+  dots.forEach((dot, idx) => {
+    dot.addEventListener('click', () => {
+      viewport.scrollTo(scrollOpts(idx * getSlideWidth()));
+    });
+  });
+
+  viewport.addEventListener('scroll', onScroll, { passive: true });
+
+  viewport.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goBy(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goBy(1);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    const i = currentIndex();
+    viewport.scrollTo({ left: i * getSlideWidth(), behavior: 'auto' });
+    updateUi();
+  });
+
+  updateUi();
 }
 
 function isProbablyValidRecipientEmail(email) {
@@ -188,7 +289,9 @@ function init() {
   fillAbout();
   fillContacts();
   fillServicesTable();
+  fillPaymentMethods();
   fillGallery();
+  initGallerySlideshow();
   initBookingForm();
 }
 
