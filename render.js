@@ -80,31 +80,6 @@ function buildContactsHtml(contacts) {
   return rows.join('');
 }
 
-/** HTML блока «Способы оплаты» */
-function buildPaymentMethodsHtml(methods) {
-  if (!methods || !methods.length) return '';
-  return methods
-    .map((item) => {
-      const title = escapeHtml(item.title || '');
-      const detailRaw = item.detail && String(item.detail).trim();
-      const detail = detailRaw
-        ? `<p class="payment-method__detail">${escapeHtml(detailRaw)}</p>`
-        : '';
-      const urlRaw = item.url && String(item.url).trim();
-      const link = urlRaw
-        ? `<p class="payment-method__link-wrap"><a class="payment-method__link" href="${escapeAttrValue(safeHref(urlRaw))}" rel="noopener noreferrer">${escapeHtml(
-            item.linkLabel && String(item.linkLabel).trim() ? String(item.linkLabel).trim() : 'Перейти'
-          )}</a></p>`
-        : '';
-      return `<article class="payment-method">
-        <h3 class="payment-method__title">${title}</h3>
-        ${detail}
-        ${link}
-      </article>`;
-    })
-    .join('');
-}
-
 /** HTML только для <tbody> таблицы услуг */
 function buildServicesTableBodyHtml(services) {
   if (!services || !services.length) return '';

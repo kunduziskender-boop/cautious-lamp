@@ -53,12 +53,6 @@ function fillServicesTable() {
   tbody.innerHTML = buildServicesTableBodyHtml(SITE_DATA.services);
 }
 
-function fillPaymentMethods() {
-  const root = document.getElementById('payment-methods');
-  if (!root || !SITE_DATA.paymentMethods) return;
-  root.innerHTML = buildPaymentMethodsHtml(SITE_DATA.paymentMethods);
-}
-
 function fillGallery() {
   const root = document.getElementById('gallery-mount');
   if (!root || !SITE_DATA.gallery) return;
@@ -289,7 +283,6 @@ function init() {
   fillAbout();
   fillContacts();
   fillServicesTable();
-  fillPaymentMethods();
   fillGallery();
   initGallerySlideshow();
   initBookingForm();
